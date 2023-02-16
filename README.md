@@ -1,5 +1,5 @@
 ## From zhouyijiaren
-###1.进一步改造spring-boot项目：
+### 1.进一步改造spring-boot项目：
 #### 清理不用的代码，把配置数据整理到配置文件
 #### 把thrift生成文件，整理到mvn私服
 

@@ -6,6 +6,13 @@
     <artifactId>thrift-service</artifactId>
     <packaging>war</packaging>
     <version>1.0</version>
+
+<parent>
+    <groupId>com.yangyang</groupId>
+  <artifactId>thrift-all</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+</parent>
+
     <properties>
         <thrift.version>0.9.3</thrift.version>
         <java.version>1.7</java.version>
@@ -224,6 +231,11 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.2</version>
+            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

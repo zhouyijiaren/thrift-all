@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.Map;
@@ -30,6 +31,16 @@ public class ThriftServiceServerProxyBean implements InitializingBean, Disposabl
     private Map<String, TProcessor> processorMap;
 
     private TThreadPoolServer server;
+
+    int port;
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 
     public ThriftServiceServerProxyBean(TServerTransport tServerTransport, TProtocolFactory tProtocolFactory,
             Map<String, TProcessor> processorMap) {
@@ -60,6 +71,7 @@ public class ThriftServiceServerProxyBean implements InitializingBean, Disposabl
         args.protocolFactory(tProtocolFactory);
         server = new TThreadPoolServer(args);
         logger.debug("Thrift Server 正在启动............");
+        logger.debug("Thrift Server started on port(s):{}", port);
         server.serve();
         logger.error("Thrift Server 停止............");
     }

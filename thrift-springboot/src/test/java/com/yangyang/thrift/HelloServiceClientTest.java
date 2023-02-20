@@ -33,21 +33,19 @@ public class HelloServiceClientTest {
 
         TJSONProtocol protocol = new TJSONProtocol(transport);
 
-
         TMultiplexedProtocol uProtocol=new TMultiplexedProtocol(protocol,"userServiceProcessor");
         TMultiplexedProtocol hProtocol=new TMultiplexedProtocol(protocol,"helloServiceProcessor");
+
         client = new HelloService.Client(hProtocol);
         uClient = new UserService.Client(uProtocol);
     }
 
+    /**
+     * @throws TException
+     */
     @Test
-    public void testSayHello() {
-        try {
-            System.out.println(client.sayHello());
-
-        } catch (TException e) {
-            e.printStackTrace();
-        }
+    public void testSayHello() throws TException {
+        System.out.println(client.sayHello());
     }
 
     @Test

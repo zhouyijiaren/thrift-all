@@ -45,9 +45,12 @@ public class HelloServiceClientTest {
      */
     @Test
     public void testSayHello() throws TException {
-        System.out.println(client.sayHello());
+        try {
+            System.out.println(client.sayHello());
+        } catch (TException e) {
+            e.printStackTrace();
+        }
     }
-
     @Test
     public void testFindAll() {
         try {

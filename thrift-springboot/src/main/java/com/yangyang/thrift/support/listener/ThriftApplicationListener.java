@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.*;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,7 @@ import java.util.Map;
  * Created by chenshunyang on 2016/9/23.
  */
 @Component
-public class ThriftApplicationListener implements ApplicationListener<ApplicationContextEvent>{
+public class ThriftApplicationListener implements ApplicationListener<ApplicationContextEvent> {
     private Logger logger = LoggerFactory.getLogger(ThriftApplicationListener.class);
     private ThriftServiceServerProxyBean proxyBeanLocal;
     // 拿到ac里的配置
@@ -33,12 +34,12 @@ public class ThriftApplicationListener implements ApplicationListener<Applicatio
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
         ApplicationContext context = event.getApplicationContext();
-        thriftPort = context.getEnvironment().getProperty("thrift.server.port",Integer.class);
-        if (event instanceof ContextRefreshedEvent|| event instanceof ContextStartedEvent){
+        thriftPort = context.getEnvironment().getProperty("thrift.server.port", Integer.class);
+        if (event instanceof ContextRefreshedEvent || event instanceof ContextStartedEvent) {
             initThriftServer(context);
             logger.debug("Thrift Server 配置加载成功");
         }
-        if (event instanceof ContextStoppedEvent || event instanceof ContextClosedEvent){
+        if (event instanceof ContextStoppedEvent || event instanceof ContextClosedEvent) {
             try {
                 proxyBeanLocal.destroy();
             } catch (Exception e) {
@@ -67,7 +68,7 @@ public class ThriftApplicationListener implements ApplicationListener<Applicatio
             logger.error("can not find bean with type tProtocolFactory");
             return;
         }
-        
+
         Map<String, TProcessor> processorMap = new HashMap<String, TProcessor>();
         for (String beanName : beansWithAnnotation.keySet()) {
             logger.info("find withAnnotation[EnableThriftServer] bean[{}] ", beanName);
@@ -75,20 +76,23 @@ public class ThriftApplicationListener implements ApplicationListener<Applicatio
             // 自动解析
             Class<?>[] interfaces = bean.getClass().getInterfaces();
             for (Class<?> clazz : interfaces) {
-                if (!clazz.getName().endsWith("$Iface")) { // need check the thrift version
+                String className = clazz.getName();
+                if (!className.endsWith("$Iface")) { // need check the thrift version
                     continue;
                 }
-                String className = clazz.getName().split("\\$")[0];
+                String serviceClassName = className.split("\\$")[0];
+                String serviceClassSimpleName = serviceClassName.substring(serviceClassName.lastIndexOf(".") + 1);
                 try {
-                    Class<?> processorClass = Class.forName(className + "$Processor");
-                    processorMap.put(beanName + "Processor",  (TProcessor) processorClass.getConstructor(clazz).newInstance(bean) );
+                    Class<?> processorClass = Class.forName(serviceClassName + "$Processor");
+                    processorMap.put(StringUtils.uncapitalize(serviceClassSimpleName) + "Processor",
+                            (TProcessor) processorClass.getConstructor(clazz).newInstance(bean));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
         }
-        
+
         final ThriftServiceServerProxyBean proxyBean = new ThriftServiceServerProxyBean(tServerTransport,
                 tProtocolFactory, processorMap);
         proxyBean.setPort(thriftPort);

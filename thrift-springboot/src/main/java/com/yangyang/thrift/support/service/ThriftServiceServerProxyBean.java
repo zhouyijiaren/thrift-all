@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.lang.instrument.IllegalClassFormatException;
 import java.util.Map;
 
 /**
@@ -52,13 +49,13 @@ public class ThriftServiceServerProxyBean implements InitializingBean, Disposabl
     @Override
     public void afterPropertiesSet() throws Exception {
         if (null == tServerTransport) {
-            throw new IllegalClassFormatException("tServerTransport is null");
+            throw new RuntimeException("tServerTransport is null");
         }
         if (null == tProtocolFactory) {
-            throw new IllegalClassFormatException("tProtocolFactory is null");
+            throw new RuntimeException("tProtocolFactory is null");
         }
         if (null == processorMap || processorMap.isEmpty()) {
-            throw new IllegalClassFormatException("processorMap is null");
+            throw new RuntimeException("processorMap is null");
         }
 
         for (String processorName : processorMap.keySet()) {

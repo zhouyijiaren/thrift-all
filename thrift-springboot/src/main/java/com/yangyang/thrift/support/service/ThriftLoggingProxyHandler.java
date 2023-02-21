@@ -17,7 +17,8 @@ import org.springframework.stereotype.Component;
 @Aspect
 public class ThriftLoggingProxyHandler {
 
-    @Around(value = "target(com.yangyang.thrift.support.service.ThriftServerService)")
+    //对于有Service注解的类, 通过AOP拦截, 进行日志的集中输出
+    @Around(value = "@within(com.yangyang.thrift.support.annotions.EnableThriftServer)")
     public Object log(ProceedingJoinPoint pjp) {
         Object result = null;
         // *) 函数调用前, 拦截处理, 作ThreadLocal的初始化工作

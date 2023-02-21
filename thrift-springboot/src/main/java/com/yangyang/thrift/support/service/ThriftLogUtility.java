@@ -31,7 +31,15 @@ public class ThriftLogUtility {
                 argBuffer.append("arg" + i + "=" + value + ",");
             }
         }
-        sb.append(String.format("thrift服务[%s] invoke method[%s] args[%s]....", targetClass.getSimpleName(), method,
+        // todo 优化这段代码
+        for (Class interfaceName : targetClass.getInterfaces()) {
+            if(interfaceName.getName().endsWith("$Iface")){
+                sb.append(String.format("thrift服务[%s] invoke method[%s] args[%s]....", interfaceName.getSimpleName(),
+                        method, argBuffer.toString()));
+                return;
+            }
+        }
+        sb.append(String.format("basic服务[%s] invoke method[%s] args[%s]....", targetClass.getSimpleName(), method,
                 argBuffer.toString()));
 
     }

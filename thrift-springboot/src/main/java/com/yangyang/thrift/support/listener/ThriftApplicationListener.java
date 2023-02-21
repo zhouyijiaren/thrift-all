@@ -1,15 +1,12 @@
 package com.yangyang.thrift.support.listener;
 
 import com.yangyang.thrift.support.annotions.EnableThriftServer;
-import com.yangyang.thrift.support.service.ThriftServerService;
 import com.yangyang.thrift.support.service.ThriftServiceServerProxyBean;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TServerTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.*;
@@ -59,24 +56,36 @@ public class ThriftApplicationListener implements ApplicationListener<Applicatio
             logger.warn("can not find annotation EnableThriftServer ");
             return;
         }
+
         TServerTransport tServerTransport = context.getBean(TServerTransport.class);
         if (null == tServerTransport) {
             logger.error("can not find bean with type TServerTransport");
             return;
         }
-
         TProtocolFactory tProtocolFactory = context.getBean(TProtocolFactory.class);
         if (null == tProtocolFactory) {
             logger.error("can not find bean with type tProtocolFactory");
             return;
         }
-
+        
         Map<String, TProcessor> processorMap = new HashMap<String, TProcessor>();
         for (String beanName : beansWithAnnotation.keySet()) {
             logger.info("find withAnnotation[EnableThriftServer] bean[{}] ", beanName);
             Object bean = context.getBean(beanName);
-            ThriftServerService serverService = (ThriftServerService) bean;
-            processorMap.put(serverService.getName() + "Processor", serverService.getProcessor(serverService));
+            // 自动解析
+            Class<?>[] interfaces = bean.getClass().getInterfaces();
+            for (Class<?> clazz : interfaces) {
+                if (!clazz.getName().endsWith("$Iface")) { // need check the thrift version
+                    continue;
+                }
+                String className = clazz.getName().split("\\$")[0];
+                try {
+                    Class<?> processorClass = Class.forName(className + "$Processor");
+                    processorMap.put(beanName + "Processor",  (TProcessor) processorClass.getConstructor(clazz).newInstance(bean) );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
         }
         

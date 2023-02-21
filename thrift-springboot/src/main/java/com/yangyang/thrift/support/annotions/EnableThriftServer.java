@@ -15,5 +15,5 @@ import java.lang.annotation.*;
 @Import(ThriftConfiguration.class)
 @AutoConfigureAfter
 public @interface EnableThriftServer {
-    Class<?> genClass() ;
+
 }

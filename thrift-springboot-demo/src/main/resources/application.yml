@@ -5,4 +5,4 @@ logging:
 
 thrift.server:
   ipAddress: 127.0.0.1
-  port: 8090
+  port: 8095

@@ -24,7 +24,7 @@ public class HelloServiceClientTest {
 
     @Before
     public void init() {
-        transport = new TSocket("127.0.0.1", 8090);
+        transport = new TSocket("127.0.0.1", 8095);
         try {
             transport.open();
         } catch (TTransportException e) {
